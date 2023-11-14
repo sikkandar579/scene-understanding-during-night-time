@@ -1,0 +1,58 @@
+!nvidia-smi
+import os
+HOME = os.getcwd()
+print(HOME)
+# Pip install method (recommended)
+!pip install ultralytics==8.0.20
+from IPython import display
+display.clear_output()
+import ultralytics
+ultralytics.checks()
+from ultralytics import YOLO
+from IPython.display import display, Image
+!mkdir {HOME}/datasets
+%cd {HOME}/datasets
+!pip install roboflow
+from roboflow import Roboflow
+rf = Roboflow(api_key="TgbgGaTTufbRn9BodH8Q")
+project = rf.workspace("college-swjqp").project("scene-understanding-in-night")
+dataset = project.version(3).download("yolov8")
+%cd {HOME}
+!yolo task=detect mode=train model=yolov8s.pt data={dataset.location}/data.yaml epochs=25 imgsz=800 plots=True
+!ls {HOME}/runs/detect/train/
+%cd {HOME}
+Image(filename=f'{HOME}/runs/detect/train/results.png', width=600)
+%cd {HOME}
+Image(filename=f'{HOME}/runs/detect/train/val_batch0_pred.jpg', width=600)
+%cd {HOME}
+!yolo task=detect mode=val model={HOME}/runs/detect/train/weights/best.pt data={dataset.location}/data.yaml
+%cd {HOME}
+!yolo task=detect mode=predict model={HOME}/runs/detect/train/weights/best.pt conf=0.25 source={dataset.location}/test/images save=True
+import glob
+from IPython.display import Image, display
+for image_path in glob.glob(f'{HOME}/runs/detect/predict/*.jpg')[:3]:
+      display(Image(filename=image_path, width=600))
+      print("\n")
+%cd {HOME}
+!yolo task=detect mode=predict model={HOME}/runs/detect/train/weights/best.pt conf=0.25 source='/content/datasets/scene-understanding-in-night--3/test/192.168.1.9_01_20190121_20.42.25-20.43.06[M][@664cf][3].avi' save=True
+!rm "/content/result_compressed.mp4"
+from IPython.display import HTML
+from base64 import b64encode
+import os
+
+# Input video path
+save_path = '/content/runs/detect/predict3/192.168.1.9_01_20190121_20.42.25-20.43.06[M][@664cf][3].mp4'
+
+# Compressed video path
+compressed_path = "/content/result_compressed.mp4"
+
+os.system(f"ffmpeg -i {save_path} -vcodec libx264 {compressed_path}")
+
+# Show video
+mp4 = open(compressed_path,'rb').read()
+data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
+HTML("""
+<video width=400 controls>
+      <source src="%s" type="video/mp4">
+</video>
+""" % data_url)
