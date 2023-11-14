@@ -7,7 +7,7 @@ In the videos obtained from IR-cameras, which are of low light intensity, resear
 Due to lack of benchmark datasets at night-time, research pertaining to this field has been superficial.
 There are many popular public object datasets such as PASCAL VOC[4,5], ImageNet[6,7], Microsoft COCO[8] and Exclusively Dark (ExDARK), which played a vital role in the object detection and recognition in low light environment.
 so we provided our own dataset taken from cctv cameras.
-we used yolov1,yolov2,yolov3 and yolov7 for object detection.
+we used yolov1,yolov2,yolov3 and yolov8 for object detection.
 
 software's required:
 1) roboflow for annotation
